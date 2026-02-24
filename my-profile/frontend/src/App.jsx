@@ -291,7 +291,7 @@ function App() {
             </div>
             <div className="hero-bottom-area">
               <p className="hero-description">
-                I'm blending logic and creativity to craft exceptional web experiences as a Full-Stack Developer & IT Student.
+                I love Video Games & I love to code.
               </p>
               <div className="hero-ctas">
                 <a href="#projects" className="brutal-btn-primary interactive">View My Work</a>
@@ -324,10 +324,10 @@ function App() {
                   </p>
                 </div>
                 <div className="tags-container">
-                  <span className="brutal-pill">Full-Stack Dev</span>
+                  <span className="brutal-pill">Aspiring Cloud Engineer</span>
                   <span className="brutal-pill">Gamer</span>
                   <span className="brutal-pill">Tech Tinkerer</span>
-                  <span className="brutal-pill">UI Enthusiast</span>
+                  <span className="brutal-pill">Tiktok Doom Scroller</span>
                 </div>
               </div>
               <div className="about-image-wrapper interactive">
