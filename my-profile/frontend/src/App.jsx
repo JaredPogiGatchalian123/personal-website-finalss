@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-// --- ADDED SUPABASE IMPORT ---
+// --- SUPABASE IMPORT ---
 import { supabase } from './supabaseClient'; 
 import './App.css';
 
@@ -68,7 +68,7 @@ const PROJECTS = [
   {
     id: 'happypaws',
     title: 'HappyPaws Clinic',
-    desc: 'A comprehensive veterinary clinic management system utilizing a hybrid database architecture.',
+    desc: 'A comprehensive veterinary clinic management system utilizing a hybrid database architecture. Features ERD normalization, stored procedures, and polyglot data handling.',
     tech: ['PHP', 'MySQL', 'MongoDB'],
     image: happyPawsImg,
     reverse: false
@@ -76,7 +76,7 @@ const PROJECTS = [
   {
     id: 'smartparking',
     title: 'Smart Parking System',
-    desc: 'A physical multi-level smart parking prototype built with Arduino Uno R4.',
+    desc: 'A physical multi-level smart parking prototype built with Arduino Uno R4. Uses IR sensors to detect vehicles, servos for gates, and features an LCD occupancy display.',
     tech: ['Arduino', 'C++'],
     image: parkingImg,
     reverse: true
@@ -84,10 +84,34 @@ const PROJECTS = [
 ];
 
 const EDUCATION = [
-  { id: 'college', level: 'College (2024–Present)', school: 'Asia Pacific College', years: '2nd Year, BSIT', logo: apcLogo },
-  { id: 'shs', level: 'Senior High School (2022–2024)', school: 'Asia Pacific College', years: 'Grade 11–12', logo: apcLogo },
-  { id: 'jhs', level: 'Junior High School (2018–2022)', school: 'Pasay City East High School', years: 'Grade 7–10', logo: eastLogo },
-  { id: 'elem', level: 'Elementary (2012–2018)', school: 'T-Paez Elementary School', years: 'Grade 1–6', logo: tpaezLogo }
+  { 
+    id: 'college', 
+    level: 'College (2024–Present)', 
+    school: 'Asia Pacific College', 
+    years: '2nd Year, BSIT',
+    logo: apcLogo 
+  },
+  { 
+    id: 'shs', 
+    level: 'Senior High School (2022–2024)', 
+    school: 'Asia Pacific College', 
+    years: 'Grade 11–12',
+    logo: apcLogo 
+  },
+  { 
+    id: 'jhs', 
+    level: 'Junior High School (2018–2022)', 
+    school: 'Pasay City East High School', 
+    years: 'Grade 7–10',
+    logo: eastLogo 
+  },
+  { 
+    id: 'elem', 
+    level: 'Elementary (2012–2018)', 
+    school: 'T-Paez Elementary School', 
+    years: 'Grade 1–6',
+    logo: tpaezLogo 
+  }
 ];
 
 const SOCIALS = [
@@ -106,11 +130,14 @@ function App() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
 
-  // --- MOUSE TRACKER ---
   useEffect(() => {
     const handleMouseMove = (e) => setMousePos({ x: e.clientX, y: e.clientY });
     const handleMouseOver = (e) => {
-      if (e.target.tagName.toLowerCase() === 'a' || e.target.tagName.toLowerCase() === 'button' || e.target.closest('.interactive')) {
+      if (
+        e.target.tagName.toLowerCase() === 'a' || 
+        e.target.tagName.toLowerCase() === 'button' || 
+        e.target.closest('.interactive')
+      ) {
         setIsHovering(true);
       }
     };
@@ -127,23 +154,27 @@ function App() {
     };
   }, []);
 
-  // --- SECTION OBSERVER ---
   useEffect(() => {
     if (appLoading) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) setActiveSection(entry.target.id);
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
         });
       },
       { rootMargin: '-100px 0px -70% 0px' }
     );
+
     const sections = document.querySelectorAll('section[id]');
     sections.forEach((section) => observer.observe(section));
+
     return () => sections.forEach((section) => observer.unobserve(section));
   }, [appLoading]);
 
-  // --- FIXED DATA FETCHING (Using Supabase Client) ---
+  // --- DATABASE LOGIC (FIXED) ---
   const fetchEntries = async () => {
     try {
       const { data, error } = await supabase
@@ -154,34 +185,34 @@ function App() {
       if (error) throw error;
       setEntries(data || []);
     } catch (error) {
-      console.error('Failed to fetch entries:', error);
+      console.error('Failed to fetch entries', error);
     }
   };
 
   useEffect(() => {
     const initApp = async () => {
       const minimumLoadTime = new Promise(resolve => setTimeout(resolve, 1500));
-      // Call Supabase fetch
+      // Fetch from Supabase
       await Promise.all([minimumLoadTime, fetchEntries()]);
       setAppLoading(false);
     };
     initApp();
   }, []);
 
-  // --- FIXED SUBMIT (Using Supabase Client) ---
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      // Use Supabase Insert
       const { error } = await supabase
         .from('guestbook')
         .insert([{ name: form.name, message: form.message }]);
-
+      
       if (error) throw error;
 
       setForm({ name: '', message: '' });
-      await fetchEntries(); // Refresh feed
+      await fetchEntries(); // Refresh list
     } catch (error) {
       alert('Error: ' + error.message);
     } finally {
@@ -192,8 +223,12 @@ function App() {
   if (appLoading) {
     return (
       <div className="loading-screen">
-        <div className="loading-logo">JG<span className="dot">.</span></div>
-        <div className="loading-bar"><div className="loading-progress"></div></div>
+        <div className="loading-logo">
+          JG<span className="dot">.</span>
+        </div>
+        <div className="loading-bar">
+          <div className="loading-progress"></div>
+        </div>
       </div>
     );
   }
@@ -209,11 +244,13 @@ function App() {
         <nav className="navbar">
           <div className="nav-brand">JG.</div>
           <div className="nav-links-desktop">
-            {['home', 'about', 'education', 'skills', 'games', 'projects', 'socials'].map(id => (
-              <a key={id} href={`#${id}`} className={activeSection === id ? 'active' : ''}>
-                {id.charAt(0).toUpperCase() + id.slice(1)}
-              </a>
-            ))}
+            <a href="#home" className={activeSection === 'home' ? 'active' : ''}>Home</a>
+            <a href="#about" className={activeSection === 'about' ? 'active' : ''}>About</a>
+            <a href="#education" className={activeSection === 'education' ? 'active' : ''}>Education</a>
+            <a href="#skills" className={activeSection === 'skills' ? 'active' : ''}>Skills</a>
+            <a href="#games" className={activeSection === 'games' ? 'active' : ''}>Games</a>
+            <a href="#projects" className={activeSection === 'projects' ? 'active' : ''}>Projects</a>
+            <a href="#socials" className={activeSection === 'socials' ? 'active' : ''}>Socials</a>
           </div>
           <button className="hamburger-btn" onClick={() => setMobileNavOpen(!mobileNavOpen)}>
             <span className={`bar ${mobileNavOpen ? 'open' : ''}`}></span>
@@ -221,21 +258,41 @@ function App() {
             <span className={`bar ${mobileNavOpen ? 'open' : ''}`}></span>
           </button>
         </nav>
+        <div className={`mobile-nav-overlay ${mobileNavOpen ? 'open' : ''}`}>
+          <div className="mobile-nav-links">
+            <a href="#home" onClick={() => setMobileNavOpen(false)}>Home</a>
+            <a href="#about" onClick={() => setMobileNavOpen(false)}>About</a>
+            <a href="#education" onClick={() => setMobileNavOpen(false)}>Education</a>
+            <a href="#skills" onClick={() => setMobileNavOpen(false)}>Skills</a>
+            <a href="#games" onClick={() => setMobileNavOpen(false)}>Games</a>
+            <a href="#projects" onClick={() => setMobileNavOpen(false)}>Projects</a>
+            <a href="#socials" onClick={() => setMobileNavOpen(false)}>Socials</a>
+          </div>
+        </div>
       </header>
 
       <main className="main-content">
-        {/* HERO */}
-        <section id="home" className="hero-section fade-in-up">
+        <section id="home" className="hero-section fade-in-up" style={{ animationDelay: '0.1s' }}>
           <div className="hero-box-outer">
             <div className="hero-status-bar">
-              <div className="status-indicator"><span className="pulse-dot"></span> Available for new opportunities</div>
+              <div className="status-indicator">
+                <span className="pulse-dot"></span> Available for new opportunities
+              </div>
             </div>
-            <div className="hero-top-text"><h2>HELLO,</h2><p>I am</p></div>
+            <div className="hero-top-text">
+              <h2>HELLO,</h2>
+              <p>I am</p>
+            </div>
             <div className="hero-box-inner interactive-hero">
-              <h1 className="hero-name">JARED<br /><span className="text-outline">GATCHALIAN</span></h1>
+              <h1 className="hero-name">
+                JARED<br />
+                <span className="text-outline">GATCHALIAN</span>
+              </h1>
             </div>
             <div className="hero-bottom-area">
-              <p className="hero-description">Full-Stack Developer & IT Student at APC.</p>
+              <p className="hero-description">
+                I'm blending logic and creativity to craft exceptional web experiences as a Full-Stack Developer & IT Student.
+              </p>
               <div className="hero-ctas">
                 <a href="#projects" className="brutal-btn-primary interactive">View My Work</a>
                 <a href="#guestbook" className="brutal-btn-secondary interactive">Sign Guestbook</a>
@@ -244,42 +301,72 @@ function App() {
           </div>
         </section>
 
-        {/* ABOUT */}
+        {/* --- RESTORED ABOUT SECTION --- */}
         <section id="about" className="content-section fade-in-up">
           <div className="brutal-container">
-            <div className="section-tab"><span className="icon">(!)</span> About</div>
+            <div className="section-tab">
+              <span className="icon">(!)</span> About
+            </div>
             <div className="about-grid">
               <div className="about-content-wrapper">
                 <div className="about-text-card">
-                  <p className="about-lead">AUTHENTIC & DRIVEN.</p>
-                  <p>I'm a 2nd-year BSIT student at Asia Pacific College, specializing in full-stack and mobile development.</p>
+                  <p className="about-lead">
+                    I'm authentically me, sprinkling my personality into everything I do.
+                  </p>
+                  <p>
+                     I genuinely enjoy coding and continuously improving my skills by building efficient and well-structured solutions. Outside of tech, I also love watching movies and playing video games, which help me relax and stay creatively inspired.
+                  </p>
+                  <p>
+                    As a 2nd-year BSIT student at Asia Pacific College, I'm always looking for the next challenge.
+                  </p>
+                  <p className="highlight-text">
+                    I'm Jared, and I could be your new favorite developer.
+                  </p>
                 </div>
                 <div className="tags-container">
                   <span className="brutal-pill">Full-Stack Dev</span>
                   <span className="brutal-pill">Gamer</span>
-                  <span className="brutal-pill">IT Student</span>
+                  <span className="brutal-pill">Tech Tinkerer</span>
+                  <span className="brutal-pill">UI Enthusiast</span>
                 </div>
               </div>
               <div className="about-image-wrapper interactive">
                 <div className="profile-frame">
                   <img src={profileImg} alt="Jared Profile" className="profile-img" />
+                  <div className="profile-overlay"></div>
+                  <div className="profile-badge">
+                    <span>JG.</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* EDUCATION */}
         <section id="education" className="content-section fade-in-up">
           <div className="brutal-container">
-            <div className="section-tab"><span className="icon">▲</span> Education</div>
+            <div className="section-tab">
+              <span className="icon">▲</span> Education
+            </div>
             <div className="education-monoliths">
               {EDUCATION.map((edu, index) => (
-                <div key={edu.id} className="edu-block interactive" style={{ transform: `translateX(${index * 20}px)`, zIndex: 10 - index }}>
-                  <div className="edu-logo-wrapper"><img src={edu.logo} alt="Logo" className="edu-logo-img" /></div>
+                <div 
+                  key={edu.id} 
+                  className="edu-block interactive" 
+                  style={{ 
+                    transform: `translateX(${index * 20}px)`, 
+                    zIndex: 10 - index 
+                  }}
+                >
+                  <div className="edu-logo-wrapper">
+                    <img src={edu.logo} alt={`${edu.school} Logo`} className="edu-logo-img" />
+                  </div>
                   <div className="edu-content">
                     <div className="edu-year">{edu.years}</div>
-                    <div className="edu-details"><h3 className="edu-level">{edu.level}</h3><p className="edu-school">{edu.school}</p></div>
+                    <div className="edu-details">
+                      <h3 className="edu-level">{edu.level}</h3>
+                      <p className="edu-school">{edu.school}</p>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -287,10 +374,11 @@ function App() {
           </div>
         </section>
 
-        {/* SKILLS */}
         <section id="skills" className="content-section fade-in-up">
           <div className="brutal-container">
-            <div className="section-tab"><span className="icon">&lt;/&gt;</span> Skills</div>
+            <div className="section-tab">
+              <span className="icon">&lt;/&gt;</span> Skills
+            </div>
             <div className="skills-grid">
               {SKILLS.map(skill => (
                 <div key={skill.name} className="skill-card interactive">
@@ -302,14 +390,20 @@ function App() {
           </div>
         </section>
 
-        {/* GAMES */}
         <section id="games" className="content-section fade-in-up">
           <div className="brutal-container">
-            <div className="section-tab"><span className="icon">🎮</span> Favorites</div>
+            <div className="section-tab">
+              <span className="icon">🎮</span> Favorites
+            </div>
+            <p className="section-subtitle">
+              My Favorite Games to Play. When the IDE is closed, you can find me here.
+            </p>
             <div className="games-grid">
               {GAMES.map(game => (
                 <div key={game.id} className="game-card interactive">
-                  <div className="game-img-wrapper"><img src={game.image} alt={game.title} className="game-img" /></div>
+                  <div className="game-img-wrapper">
+                    <img src={game.image} alt={game.title} className="game-img" />
+                  </div>
                   <div className="game-info">
                     <span className="game-genre">{game.genre}</span>
                     <h4 className="game-title">{game.title}</h4>
@@ -320,18 +414,27 @@ function App() {
           </div>
         </section>
 
-        {/* PROJECTS */}
         <section id="projects" className="content-section fade-in-up">
           <div className="brutal-container projects-container">
-            <div className="section-tab"><span className="icon">[ ]</span> Projects</div>
+            <div className="section-tab">
+              <span className="icon">[ ]</span> Projects
+            </div>
             {PROJECTS.map(project => (
               <div key={project.id} className={`project-card ${project.reverse ? 'reverse' : ''}`}>
-                <div className="project-image interactive"><img src={project.image} alt={project.title} className="project-img-preview" /></div>
+                <div className="project-image interactive">
+                  <img 
+                    src={project.image} 
+                    alt={project.title} 
+                    className="project-img-preview" 
+                  />
+                </div>
                 <div className="project-details">
                   <h3>{project.title}</h3>
                   <p className="project-desc">{project.desc}</p>
                   <div className="project-tech">
-                    {project.tech.map(t => <span key={t} className="tech-tag">{t}</span>)}
+                    {project.tech.map(techItem => (
+                      <span key={techItem} className="tech-tag">{techItem}</span>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -339,13 +442,23 @@ function App() {
           </div>
         </section>
 
-        {/* SOCIALS */}
         <section id="socials" className="content-section fade-in-up">
           <div className="brutal-container">
-            <div className="section-tab"><span className="icon">🔗</span> Socials</div>
+            <div className="section-tab">
+              <span className="icon">🔗</span> Socials
+            </div>
+            <p className="section-subtitle">
+              Let's build something great. Reach out to me across any of these platforms.
+            </p>
             <div className="socials-grid">
               {SOCIALS.map(social => (
-                <a key={social.id} href={social.link} target="_blank" rel="noreferrer" className="social-card interactive">
+                <a 
+                  key={social.id} 
+                  href={social.link} 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="social-card interactive"
+                >
                   <span className="social-arrow">↗</span>
                   <img src={social.image} alt={social.platform} className="social-icon-img" />
                   <span className="social-name">{social.platform}</span>
@@ -355,10 +468,11 @@ function App() {
           </div>
         </section>
 
-        {/* GUESTBOOK (UPDATED WITH SUPABASE LOGIC) */}
         <section id="guestbook" className="content-section fade-in-up">
           <div className="brutal-container guestbook-container">
-            <div className="section-tab"><span className="icon">✎</span> Guestbook</div>
+            <div className="section-tab">
+              <span className="icon">✎</span> Guestbook
+            </div>
             <div className="guestbook-grid">
               <div className="guestbook-form-area">
                 <h2>Leave a Mark</h2>
